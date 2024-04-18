@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Display Products</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color:#928888; 
+    }
+    .container-main {
+      background-color:#ffffff  ; 
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      position: relative; 
+    }
+    .print-btn {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  </style>
+</head>
+<body>
+  <div class="container container-main">
+    <div class="container">
+      <h1>BILL</h1>
+      <div class="container"> 
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Item Name</th>
+              <th scope="col">Price (Rs.)</th>
+              <th scope="col">Quantity</th>
+            </tr>
+          </thead>
+          <tbody id="productTable">
+          </tbody>
+        </table>
+        <div id="totalAmount"></div>
+      </div>
+    </div>
+    <marquee behavior="scroll" direction="left"><b><h3><i>THANK YOU ! VISIT AGAIN !!!</i></h3></b></marquee>
+  </div>
+  <button onclick="window.print()" class="btn btn-primary print-btn" style="width: 150px; height: 50px;">Print</button> 
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const itemNames = urlParams.getAll('item[]');
+    const prices = urlParams.getAll('price[]');
+    const quantities = urlParams.getAll('quantity[]');
+    
+
+    const tableBody = document.getElementById('productTable');
+    let totalAmount = 0;
+    for (let i = 0; i < itemNames.length; i++) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${itemNames[i]}</td>
+        <td>${prices[i]}</td>
+        <td>${quantities[i]}</td>
+      `;
+      tableBody.appendChild(row);
+
+      totalAmount += parseFloat(prices[i]) * parseInt(quantities[i]);
+    }
+    const totalDiv = document.getElementById('totalAmount');
+    totalDiv.innerHTML = `<h4>Total Amount: Rs. ${totalAmount.toFixed(2)}</h4>`;
+  </script>
+</body>
+</html> 

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Bill Calculator</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-image: url('back5.jpg'); 
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      text-align: center; 
+    }
+    .form-control {
+      width: 350px; 
+      margin: 0 auto; 
+    }
+    .container {
+      margin-top: 50px; 
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1 style="color:red;"><i><b>NIHA MOBILES</b></i></h1>
+  <form id="billForm">
+    <div id="products">
+      <div class="form-group">
+        <label for="customerName"><b>Customer Name:</b></label>
+        <input type="text" class="form-control" name="customerName" placeholder="Enter your name" pattern="[A-Za-z ]+" title="Name should contain only alphabets and spaces" required>
+        <div id="nameError" style="color:red; display:none;">Please enter a valid name (only alphabets and spaces).</div>
+      </div>
+      <div class="form-group">
+        <label for="contact"><b>Contact:</b></label>
+        <input type="tel" class="form-control" name="contact" placeholder="Enter your contact number" pattern="[0-9]+" title="Contact should contain only numbers" required>
+        <div id="contactError" style="color:red; display:none;">Please enter a valid contact number (only numbers).</div>
+      </div>
+    </div>
+    <button type="button" class="btn btn-success" onclick="addProduct()">Add Product</button>
+    <button type="button" class="btn btn-primary" onclick="prepareDataAndRedirect()">Calculate Total</button>
+  </form>
+  <br>
+  <div id="total"></div>
+</div>
+
+<script>
+  const predefinedPrices = {
+    iPhone: 105670,
+    Redmi: 16000,
+    Oppo: 18000,
+    Vivo: 14000,
+    Realme: 12000,
+    Samsung: 13500
+  };
+
+  function addProduct() {
+    productsDiv = document.getElementById('products');
+    productTemplate = `
+      <div class="form-group">
+        <label for="item"><b>Mobile Brand:</b></label>
+        <select class="form-control" name="item[]" onchange="updatePrice(this)">
+          <option value="">Select Brand</option>
+          <option value="iPhone">iPhone</option>
+          <option value="Redmi">Redmi</option>
+          <option value="Oppo">Oppo</option>
+          <option value="Vivo">Vivo</option>
+          <option value="Realme">Realme</option>
+          <option value="Samsung">Samsung</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="quantity"><b>Quantity:</b></label>
+        <input type="number" class="form-control" name="quantity[]" placeholder="Enter quantity" onchange="calculateTotal()">
+      </div>
+    `;
+    productContainer = document.createElement('div');
+    productContainer.innerHTML = productTemplate;
+    productsDiv.appendChild(productContainer);
+  }
+
+  function calculateTotal() {
+    items = document.getElementsByName('item[]');
+    quantities = document.getElementsByName('quantity[]');
+    total = 0;
+
+    for (i = 0; i < items.length; i++) {
+      itemName = items[i].value.trim();
+      quantity = parseInt(quantities[i].value);
+
+      if (!itemName || isNaN(quantity)) {
+        alert("Please fill in all fields with valid values.");
+        return;
+      }
+
+      total += predefinedPrices[itemName] * quantity;
+    }
+
+    return total.toFixed(2); 
+  }
+
+  function updatePrice(select) {
+    let quantityInput = select.parentElement.nextElementSibling.querySelector('input[name="quantity[]"]');
+    quantityInput.value = 1;
+    calculateTotal();
+  }
+
+  function prepareDataAndRedirect() {
+    let totalAmount = calculateTotal(); 
+    let totalWithTax = (totalAmount * 1.1).toFixed(2); // Applying 10% tax rate
+    document.getElementById('total').innerHTML = "<h4>Total Amount: Rs." + totalWithTax + "</h4>"; 
+
+    let formData = new FormData();
+    let itemNames = document.querySelectorAll('select[name="item[]"]');
+    let quantities = document.querySelectorAll('input[name="quantity[]"]');
+    
+    for (let i = 0; i < itemNames.length; i++) {
+      formData.append('item[]', itemNames[i].value);
+      formData.append('price[]', predefinedPrices[itemNames[i].value]);
+      formData.append('quantity[]', quantities[i].value);
+    }
+    
+    window.location.href = 'next_page.html?total=' + totalWithTax + '&' + new URLSearchParams(formData).toString();
+  }
+</script>
+</body>
+</html>
